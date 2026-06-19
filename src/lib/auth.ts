@@ -14,6 +14,15 @@ type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR
 const ALLOWED_SCOPES = ["openid", "profile", "email", "offline_access"] as const
 
 export const auth = betterAuth({
+    experimental: {
+        joins: true,
+    },
+    session: {
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60,
+        },
+    },
     database: drizzleAdapter(db, {
         provider: "pg",
         usePlural: true,

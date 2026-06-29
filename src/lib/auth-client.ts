@@ -14,6 +14,9 @@ const authEventsByPath: Record<string, string> = {
   "/change-email": "email_changed",
   "/change-password": "password_changed",
   "/update-user": "profile_updated",
+  "/passkey/verify-authentication": "passkey_sign_in",
+  "/passkey/verify-registration": "passkey_added",
+  "/passkey/delete-passkey": "passkey_deleted",
 }
 
 export const authClient = createAuthClient({

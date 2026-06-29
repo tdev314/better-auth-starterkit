@@ -63,6 +63,20 @@ Customize the app name, theme color, and asset URLs. All are optional.
 
 ---
 
+## SMTP (Email)
+
+Optional. When all required SMTP variables are set, emails (password reset, email verification, invitations) are sent via SMTP. Otherwise they are logged to the console.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SMTP_HOST` | SMTP server hostname (e.g. `smtp.gmail.com`, `smtp.resend.com`). | None (disabled) |
+| `SMTP_PORT` | SMTP server port. | `587` |
+| `SMTP_USER` | SMTP authentication username. | None (disabled) |
+| `SMTP_PASS` | SMTP authentication password or API key. | None (disabled) |
+| `SMTP_FROM` | Sender address (e.g. `"App Name <noreply@example.com>"`). | None (disabled) |
+
+---
+
 ## Analytics (PostHog)
 
 Optional. When `NEXT_PUBLIC_POSTHOG_KEY` is not set, PostHog is disabled entirely.

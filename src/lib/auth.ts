@@ -8,6 +8,7 @@ import { invite } from "better-invite"
 
 import { db } from "@/database/db"
 import * as schema from "@/database/schema"
+import { sendEmail } from "./email"
 
 /** Bridges better-invite `$ERROR_CODES` to Better Auth’s `RawError` shape. See `docs/typescript-better-invite.md`. */
 type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
@@ -36,11 +37,25 @@ export const auth = betterAuth({
         usePlural: true,
         schema
     }),
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url }) => {
+            void sendEmail({
+                to: user.email,
+                subject: "Verify your email address",
+                text: `Click the link to verify your email: ${url}`,
+            })
+        },
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true,
+    },
     emailAndPassword: {
         enabled: true,
-        sendResetPassword: async ({ user, url }, request) => {
-            // Replace with your email provider (e.g. Resend, SendGrid, Nodemailer)
-            console.log(`[Reset Password] ${user.email}: ${url}`)
+        sendResetPassword: async ({ user, url }) => {
+            void sendEmail({
+                to: user.email,
+                subject: "Reset your password",
+                text: `Click the link to reset your password: ${url}`,
+            })
         },
     },
     disabledPaths: ["/token"],
@@ -59,8 +74,12 @@ export const auth = betterAuth({
             },
         }),
         invite({
-            async sendUserInvitation({ email, role, url, token, newAccount }) {
-                console.log(`[Invite] ${email} (role: ${role}, new: ${newAccount}): ${url}`)
+            async sendUserInvitation({ email, role, url }) {
+                void sendEmail({
+                    to: email,
+                    subject: "You've been invited",
+                    text: `You've been invited with the role "${role}". Accept the invitation: ${url}`,
+                })
             },
         }) as unknown as FixErrorCodes<ReturnType<typeof invite>>,
         dash(), 

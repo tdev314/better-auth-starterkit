@@ -2,6 +2,7 @@ import { AuthView } from "@daveyplate/better-auth-ui"
 import { authViewPaths } from "@daveyplate/better-auth-ui/server"
 import Link from "next/link"
 
+import { SignInView } from "@/components/sign-in-view"
 import { TwoFactorView } from "@/components/two-factor-view"
 
 export const dynamicParams = false
@@ -21,6 +22,8 @@ export default async function AuthPage({
         <main className="container flex grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">
             {path === "two-factor" ? (
                 <TwoFactorView />
+            ) : path === "sign-in" ? (
+                <SignInView />
             ) : (
                 <AuthView path={path} />
             )}

@@ -5,6 +5,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { admin, jwt, openAPI, twoFactor } from "better-auth/plugins"
 import { oauthProvider } from "@better-auth/oauth-provider"; 
 import { invite } from "better-invite"
+import { nostr } from "better-auth-nostr"
+import { nostrLink } from "@/lib/plugins/nostr-link"
 
 import { db } from "@/database/db"
 import * as schema from "@/database/schema"
@@ -89,6 +91,10 @@ export const auth = betterAuth({
                 })
             },
         }) as unknown as FixErrorCodes<ReturnType<typeof invite>>,
+        nostr({
+            disableImplicitSignUp: true,
+        }),
+        nostrLink(),
         dash(), 
         sentinel(),
         openAPI(),

@@ -57,6 +57,13 @@
       "when": 1782703637181,
       "tag": "0007_parched_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782710632999,
+      "tag": "0008_talented_viper",
+      "breakpoints": true
     }
   ]
 }

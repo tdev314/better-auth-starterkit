@@ -2,7 +2,7 @@ import { getSessionCookie } from "better-auth/cookies"
 import { type NextRequest, NextResponse } from "next/server"
 
 const authRoutes = ["/auth/sign-in", "/auth/sign-up"]
-const protectedRoutes = ["/account/settings", "/admin"]
+const protectedRoutes = ["/account/settings", "/account/nostr", "/admin"]
 
 export async function middleware(request: NextRequest) {
     const sessionCookie = getSessionCookie(request)
@@ -23,5 +23,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/auth/sign-in", "/auth/sign-up", "/account/settings", "/admin/:path*"]
+    matcher: ["/auth/sign-in", "/auth/sign-up", "/account/settings", "/account/nostr", "/admin/:path*"]
 }

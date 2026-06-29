@@ -5,6 +5,7 @@ import { adminClient, twoFactorClient } from "better-auth/client/plugins"
 import { dashClient, sentinelClient } from "@better-auth/infra/client"
 import { oauthProviderClient } from "@better-auth/oauth-provider/client"
 import { inviteClient, type invite } from "better-invite"
+import { nostrClient } from "better-auth-nostr/client"
 import posthog from "@/lib/posthog"
 
 /** See `docs/typescript-better-invite.md` — must match server `invite()` shim. */
@@ -20,6 +21,8 @@ const authEventsByPath: Record<string, string> = {
   "/two-factor/verify-totp": "2fa_totp_verified",
   "/two-factor/enable": "2fa_enabled",
   "/two-factor/disable": "2fa_disabled",
+  "/nostr/login": "nostr_sign_in",
+  "/nostr/link": "nostr_key_linked",
 }
 
 export const authClient = createAuthClient({
@@ -36,6 +39,7 @@ export const authClient = createAuthClient({
     twoFactorClient({
       twoFactorPage: "/auth/two-factor",
     }),
+    nostrClient(),
     oauthProviderClient(),
     inviteClient() as unknown as {
       id: "invite"

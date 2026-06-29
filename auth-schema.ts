@@ -7,6 +7,7 @@ import {
   integer,
   jsonb,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -160,6 +161,23 @@ export const inviteUses = pgTable("invite_uses", {
   }),
 });
 
+export const nostrPubkeys = pgTable(
+  "nostr_pubkeys",
+  {
+    id: text("id").primaryKey(),
+    name: text("name"),
+    publicKey: text("public_key").notNull().unique(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("nostrPubkeys_publicKey_uidx").on(table.publicKey),
+    index("nostrPubkeys_userId_idx").on(table.userId),
+  ],
+);
+
 export const jwkss = pgTable("jwkss", {
   id: text("id").primaryKey(),
   publicKey: text("public_key").notNull(),
@@ -287,6 +305,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   passkeys: many(passkeys),
   invites: many(invites),
   inviteUses: many(inviteUses),
+  nostrPubkeys: many(nostrPubkeys),
   oauthClients: many(oauthClients),
   oauthRefreshTokens: many(oauthRefreshTokens),
   oauthAccessTokens: many(oauthAccessTokens),
@@ -338,6 +357,13 @@ export const inviteUsesRelations = relations(inviteUses, ({ one }) => ({
   }),
   users: one(users, {
     fields: [inviteUses.usedByUserId],
+    references: [users.id],
+  }),
+}));
+
+export const nostrPubkeysRelations = relations(nostrPubkeys, ({ one }) => ({
+  users: one(users, {
+    fields: [nostrPubkeys.userId],
     references: [users.id],
   }),
 }));

@@ -86,15 +86,38 @@ export const verifications = pgTable(
   (table) => [index("verifications_identifier_idx").on(table.identifier)],
 );
 
+export const passkeys = pgTable(
+  "passkeys",
+  {
+    id: text("id").primaryKey(),
+    name: text("name"),
+    publicKey: text("public_key").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    credentialID: text("credential_id").notNull(),
+    counter: integer("counter").notNull(),
+    deviceType: text("device_type").notNull(),
+    backedUp: boolean("backed_up").notNull(),
+    transports: text("transports"),
+    createdAt: timestamp("created_at"),
+    aaguid: text("aaguid"),
+  },
+  (table) => [
+    index("passkeys_userId_idx").on(table.userId),
+    index("passkeys_credentialID_idx").on(table.credentialID),
+  ],
+);
+
 export const invites = pgTable("invites", {
   id: text("id").primaryKey(),
-  token: text("token").unique(),
-  createdAt: timestamp("created_at"),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   maxUses: integer("max_uses").notNull(),
-  createdByUserId: text("created_by_user_id").references(() => users.id, {
-    onDelete: "set null",
-  }),
+  createdByUserId: text("created_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "set null" }),
   redirectToAfterUpgrade: text("redirect_to_after_upgrade"),
   shareInviterName: boolean("share_inviter_name").notNull(),
   email: text("email"),
@@ -171,8 +194,8 @@ export const oauthRefreshTokens = pgTable("oauth_refresh_tokens", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   referenceId: text("reference_id"),
-  expiresAt: timestamp("expires_at"),
-  createdAt: timestamp("created_at"),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
   revoked: timestamp("revoked"),
   authTime: timestamp("auth_time"),
   scopes: text("scopes").array().notNull(),
@@ -180,7 +203,7 @@ export const oauthRefreshTokens = pgTable("oauth_refresh_tokens", {
 
 export const oauthAccessTokens = pgTable("oauth_access_tokens", {
   id: text("id").primaryKey(),
-  token: text("token").unique(),
+  token: text("token").notNull().unique(),
   clientId: text("client_id")
     .notNull()
     .references(() => oauthClients.clientId, { onDelete: "cascade" }),
@@ -192,8 +215,8 @@ export const oauthAccessTokens = pgTable("oauth_access_tokens", {
   refreshId: text("refresh_id").references(() => oauthRefreshTokens.id, {
     onDelete: "cascade",
   }),
-  expiresAt: timestamp("expires_at"),
-  createdAt: timestamp("created_at"),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
   scopes: text("scopes").array().notNull(),
 });
 
@@ -205,13 +228,14 @@ export const oauthConsents = pgTable("oauth_consents", {
   userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
   referenceId: text("reference_id"),
   scopes: text("scopes").array().notNull(),
-  createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
+  passkeys: many(passkeys),
   invites: many(invites),
   inviteUses: many(inviteUses),
   oauthClients: many(oauthClients),
@@ -232,6 +256,13 @@ export const sessionsRelations = relations(sessions, ({ one, many }) => ({
 export const accountsRelations = relations(accounts, ({ one }) => ({
   users: one(users, {
     fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const passkeysRelations = relations(passkeys, ({ one }) => ({
+  users: one(users, {
+    fields: [passkeys.userId],
     references: [users.id],
   }),
 }));

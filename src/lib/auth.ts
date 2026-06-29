@@ -1,5 +1,6 @@
 import { betterAuth, type BetterAuthPlugin } from "better-auth"
 import { dash, sentinel } from "@better-auth/infra"
+import { passkey, getAuthenticatorName } from "@better-auth/passkey"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { admin, jwt, openAPI } from "better-auth/plugins"
 import { oauthProvider } from "@better-auth/oauth-provider"; 
@@ -12,6 +13,10 @@ import * as schema from "@/database/schema"
 type FixErrorCodes<T> = Omit<T, "$ERROR_CODES"> & Pick<BetterAuthPlugin, "$ERROR_CODES">
 
 const ALLOWED_SCOPES = ["openid", "profile", "email", "offline_access"] as const
+
+const authOrigin = (
+    process.env.BETTER_AUTH_URL || "http://localhost:3000"
+).replace(/\/$/, "")
 
 export const auth = betterAuth({
     // baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
@@ -41,6 +46,18 @@ export const auth = betterAuth({
     disabledPaths: ["/token"],
     plugins: [
         admin(),
+        passkey({
+            rpName: process.env.APPLICATION_NAME || "Better Auth StarterKit",
+            origin: authOrigin,
+            rpID: new URL(authOrigin).hostname,
+            registration: {
+                afterVerification: async ({ verification }) => ({
+                    name: getAuthenticatorName(
+                        verification.registrationInfo?.aaguid,
+                    ),
+                }),
+            },
+        }),
         invite({
             async sendUserInvitation({ email, role, url, token, newAccount }) {
                 console.log(`[Invite] ${email} (role: ${role}, new: ${newAccount}): ${url}`)
@@ -93,6 +110,7 @@ export const auth = betterAuth({
             silenceWarnings: {
                 openidConfig: true,
                 oauthConfig: true,
+                oauthAuthServerConfig: true,
             },
         }),
     ]

@@ -25,6 +25,7 @@ const iconUrl = process.env.ICON_URL
 const ogImageUrl = process.env.OPENGRAPH_IMAGE_URL
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000"),
     title: appName,
     icons: {
         icon: faviconUrl || "/icon.svg",

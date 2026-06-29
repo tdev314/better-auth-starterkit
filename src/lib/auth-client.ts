@@ -26,6 +26,9 @@ export const authClient = createAuthClient({
     dashClient(),
     sentinelClient({
       autoSolveChallenge: true,
+      ...(process.env.NEXT_PUBLIC_BETTER_AUTH_IDENTIFY_URL && {
+        identifyUrl: process.env.NEXT_PUBLIC_BETTER_AUTH_IDENTIFY_URL,
+      }),
     }),
     oauthProviderClient(),
     inviteClient() as unknown as {
